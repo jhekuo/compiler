@@ -11,9 +11,10 @@ SysY 语⾔通过`getint`与`printf`函数完成 IO 交互，函数⽤法已在�
 - **语句**：语句包括赋值语句、表达式语句(表达式可以为空)、语句块、if 语句、while 语句、break 语句、continue 语句、return 语句。语句块中可以包含若⼲变量声明和语句。 
 - **表达式**：⽀持基本的算术运算(`+、-、*、/、%`)、关系运算(`==、!=、<、>、<=、>=`)和逻辑运 算(`!、&&、||`)，⾮ 0 表示真、0 表示假，⽽关系运算或逻辑运算的结果⽤ 1 表示真、0 表示假。算符的优先级和结合性以及计算规则(含逻辑运算的“短路计算”)与 C 语⾔⼀致。
 
-文法见[![1](https://img.shields.io/badge/repo-miniSysY-9cf?logo=github)](https://github.com/BUAA-SE-Compiling/miniSysY-tutorial/blob/master/miniSysY.md)  [![2](https://img.shields.io/badge/pdf-%E6%96%87%E6%B3%95%E5%AE%9A%E4%B9%89%E8%AF%B4%E6%98%8E-9cf?logo=gitbook)](https://github.com/imingx/Compiler/blob/main/docs/2021%E7%BC%96%E8%AF%91%E6%8A%80%E6%9C%AF%E5%AE%9E%E9%AA%8C%E6%96%87%E6%B3%95%E5%AE%9A%E4%B9%89%E5%8F%8A%E7%9B%B8%E5%85%B3%E8%AF%B4%E6%98%8E.pdf)
 
 ## 文法
+
+详细文法见[![1](https://img.shields.io/badge/repo-miniSysY-9cf?logo=github)](https://github.com/BUAA-SE-Compiling/miniSysY-tutorial/blob/master/miniSysY.md)  [![2](https://img.shields.io/badge/pdf-%E6%96%87%E6%B3%95%E5%AE%9A%E4%B9%89%E8%AF%B4%E6%98%8E-9cf?logo=gitbook)](https://github.com/imingx/Compiler/blob/main/docs/2021%E7%BC%96%E8%AF%91%E6%8A%80%E6%9C%AF%E5%AE%9E%E9%AA%8C%E6%96%87%E6%B3%95%E5%AE%9A%E4%B9%89%E5%8F%8A%E7%9B%B8%E5%85%B3%E8%AF%B4%E6%98%8E.pdf)
 
 ```
   编译单元 CompUnit → {Decl} {FuncDef} MainFuncDef // 1.是否存在Decl 2.是否存在FuncDef
@@ -240,7 +241,6 @@ git commit的message可以换行，在输入第一个"后，输入回车并不�
 1. [`unique_ptr`][unique_ptr], [`shared_ptr`][share_ptr]
 2. [TryC - a small interpreter written by C][tryC - a small interpreter written by C]
 3. [My First Language Frontend with LLVM Tutorial][My First Language Frontend with LLVM Tutorial]
-
 
 
 
