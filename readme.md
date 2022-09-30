@@ -13,6 +13,180 @@ SysY 语⾔通过`getint`与`printf`函数完成 IO 交互，函数⽤法已在�
 
 文法见[![1](https://img.shields.io/badge/repo-miniSysY-9cf?logo=github)](https://github.com/BUAA-SE-Compiling/miniSysY-tutorial/blob/master/miniSysY.md)  [![2](https://img.shields.io/badge/pdf-%E6%96%87%E6%B3%95%E5%AE%9A%E4%B9%89%E8%AF%B4%E6%98%8E-9cf?logo=gitbook)](https://github.com/imingx/Compiler/blob/main/docs/2021%E7%BC%96%E8%AF%91%E6%8A%80%E6%9C%AF%E5%AE%9E%E9%AA%8C%E6%96%87%E6%B3%95%E5%AE%9A%E4%B9%89%E5%8F%8A%E7%9B%B8%E5%85%B3%E8%AF%B4%E6%98%8E.pdf)
 
+## 文法
+
+```
+  编译单元 CompUnit → {Decl} {FuncDef} MainFuncDef // 1.是否存在Decl 2.是否存在FuncDef
+
+  声明 Decl → ConstDecl | VarDecl // 覆盖两种声明
+
+  常量声明 ConstDecl → 'const' BType ConstDef { ',' ConstDef } ';' // 1.花括号内重复0次 2.花括号内重复多次
+
+  基本类型 BType → 'int' // 存在即可
+
+  常数定义 ConstDef → Ident { '[' ConstExp ']' } '=' ConstInitVal // 包含普通变量、一维数组、二维数组共三种情况
+
+  常量初值 ConstInitVal → ConstExp
+    | '{' [ ConstInitVal { ',' ConstInitVal } ] '}' // 1.常表达式初值 2.一维数组初值 3.二维数组初值
+
+  变量声明 VarDecl → BType VarDef { ',' VarDef } ';' // 1.花括号内重复0次 2.花括号内重复多次
+
+  变量定义 VarDef → Ident { '[' ConstExp ']' } // 包含普通变量、一维数组、二维数组定义
+    | Ident { '[' ConstExp ']' } '=' InitVal
+
+  变量初值 InitVal → Exp | '{' [ InitVal { ',' InitVal } ] '}'// 1.表达式初值 2.一维数组初值 3.二维数组初值
+
+  函数定义 FuncDef → FuncType Ident '(' [FuncFParams] ')' Block // 1.无形参 2.有形参
+
+  主函数定义 MainFuncDef → 'int' 'main' '(' ')' Block // 存在main函数
+
+  函数类型 FuncType → 'void' | 'int' // 覆盖两种类型的函数 
+
+  函数形参表 FuncFParams → FuncFParam { ',' FuncFParam } // 1.花括号内重复0次 2.花括号内重复多次
+
+  函数形参 FuncFParam → BType Ident ['[' ']' { '[' ConstExp ']' }] // 1.普通变量 2.一维数组变量 3.二维数组变量
+
+  语句块 Block → '{' { BlockItem } '}' // 1.花括号内重复0次 2.花括号内重复多次
+
+  语句块项 BlockItem → Decl | Stmt // 覆盖两种语句块项
+
+  语句 Stmt → LVal '=' Exp ';' // 每种类型的语句都要覆盖
+    | [Exp] ';' //有无Exp两种情况
+    | Block 
+    | 'if' '( Cond ')' Stmt [ 'else' Stmt ] // 1.有else 2.无else
+    | 'while' '(' Cond ')' Stmt
+    | 'break' ';' | 'continue' ';'
+    | 'return' [Exp] ';' // 1.有Exp 2.无Exp
+    | LVal = 'getint''('')'';'
+    | 'printf' '('FormatString {',' Exp} ')'';' // 1.有Exp 2.无Exp
+
+  表达式 Exp → AddExp 注：SysY 表达式是int 型表达式 // 存在即可
+
+  条件表达式 Cond → LOrExp // 存在即可
+
+  左值表达式 LVal → Ident {'[' Exp ']'} //1.普通变量 2.一维数组 3.二维数组
+
+  基本表达式 PrimaryExp → '(' Exp ')' | LVal | Number // 三种情况均需覆盖
+
+  数值 Number → IntConst // 存在即可
+
+  一元表达式 UnaryExp → PrimaryExp | Ident '(' [FuncRParams] ')' // 三种情况均需覆盖,函数调用也需要覆盖FuncRParams的不同情况
+    | UnaryOp UnaryExp // 存在即可
+
+  单目运算符 UnaryOp → '+' | '−' | '!' 注：'!'仅出现在条件表达式中 // 三种均需覆盖
+
+  函数实参表 FuncRParams → Exp { ',' Exp } // 1.花括号内重复0次 2.花括号内重复多次 3. Exp需要覆盖数组传参和部分数组传参
+
+  乘除模表达式 MulExp → UnaryExp | MulExp ('*' | '/' | '%') UnaryExp // 1.UnaryExp 2.* 3./ 4.% 均需覆盖
+
+  加减表达式 AddExp → MulExp | AddExp ('+' | '−') MulExp // 1.MulExp 2.+ 3.- 均需覆盖
+
+  关系表达式 RelExp → AddExp | RelExp ('<' | '>' | '<=' | '>=') AddExp // 1.AddExp 2.< 3.> 4.<= 5.>= 均需覆盖
+
+  相等性表达式 EqExp → RelExp | EqExp ('==' | '!=') RelExp // 1.RelExp 2.== 3.!= 均需覆盖
+
+  逻辑与表达式 LAndExp → EqExp | LAndExp '&&' EqExp // 1.EqExp 2.&& 均需覆盖
+
+  逻辑或表达式 LOrExp → LAndExp | LOrExp '||' LAndExp // 1.LAndExp 2.|| 均需覆盖
+
+  常量表达式 ConstExp → AddExp 注：使用的Ident 必须是常量 // 存在即可
+
+  格式化字符 FormatChar → %d
+
+  普通字符 NormalChar → 十进制编码为32,33,40-126的ASCII字符
+
+  字符 Char → FormatChar | NormalChar 
+
+  格式化字符串 FormatString → '"'{ Char }'"'
+```
+
+## 测试样例
+
+```
+const int array[2] = {1,2};
+
+int main(){
+    int c;
+    c = getint();
+    printf("output is %d, %d",c, array[0]);
+    return 0;
+}
+```
+
+```
+// {Decl}------------------------------
+int g_a = 1613;
+int g_b, g_c;
+int g_arr_a[2], g_arr_b[2][2];
+int g_arr_c[2] = {1, 2};
+int g_arr_d[2][2] = {{1, 2}, {1, 2}};
+const int const_a = 1613;
+const int const_b = 1613, const_c = 1613;
+const int const_arr_a[2] = {1, 2};
+const int const_arr_b[2][2] =  {{1, 2}, {1, 2}};
+
+// {ConstExp}--------------------------
+const int const_d = 2 + 2 - 2;
+const int const_e = 3 * 3 / 3 % 3;
+const int const_f = -(4);
+const int const_g = +(5);
+const int const_h = const_a;
+
+// {FuncDef}---------------------------
+void func_1(){return;}
+void func_2(int a){int b;b = a;return;}
+void func_3(int a, int b){return;}
+void func_4(int arr1[], int arr2[][2], int arr3[ ]){
+    arr1[1] = 1;
+    arr2[1][1] = 1;
+    return;
+}
+
+int func_5(){return 1;}
+
+// {Cond}---------------------------
+void func_6(int a, int b){
+    func_2(a);
+    func_3(a, b);
+    func_4(g_arr_c, g_arr_d, g_arr_d[0]);
+    if(a == b) {return;}
+    if(a != b);
+    if(a > b);
+    if(a < b);
+    if(a <= b);
+    if(a >= b);
+    if(!a);
+    return;
+}
+
+int main()
+{
+    int n, i;
+    //scanf("%d", &n);
+    n = getint();
+    i = 1;
+    1;;{}
+
+    if( i >= 1) i = 1;
+    if( i < 1)  i = 1; 
+    else i = 4;
+
+    while( i > 1)
+    {
+        i = i - 1;
+        if(i > 1)
+            continue;
+        else
+            break;
+    }
+    // {printf}--------------------------
+    printf("19373136\n");
+    printf("i is %d, n is %d\n", i, n);
+    printf("! ()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~\n");
+    return 0;
+}
+```
+
 ## 步骤
 
 - [00\_文法解读][00_文法解读]
